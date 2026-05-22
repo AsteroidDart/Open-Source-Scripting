@@ -53,10 +53,12 @@ if [[ "$INPUT_FILE" != *.csv ]]; then
 fi
 
 # 4) Input file is empty
-if [ ! -s "$INPUT_FILE" ]; then
-    echo "ERROR: Empty file provided"
-    exit 1
-fi
+header_line=$(grep -m 1 -v '^[[:space:],]*$' "$1")
+ 
+ if [[ -z "$header_line" ]]; then
+    echo "ERROR: Empty file provided" >&2
+     exit 1
+ fi
 
 # 5) Input CSV file has incorrect number of columns
 INVALID_COLS=$(awk -F',' 'NF != 7 {print NR}' "$INPUT_FILE")
