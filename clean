@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Name: Atharva Adhikari
+# ID: 25049366
+# Version Number: 3
+# Date of completion: 22 May 2026
+# How to run this script: ./clean trending_videos_unclean.csv
+# Summary: The given script performs data cleaning on a CSV file containing YouTube trending video data. It checks for various error conditions such as missing input file, incorrect file format, and empty file. The script processes the CSV file using awk, removing rows with incorrect number of columns, missing values, and zero likes/dislikes. It also formats the publish date and converts TRUE/FALSE values to True/False. Finally, it removes duplicate rows and saves the cleaned data to a new CSV file named "trending_videos_clean.csv".
+
 # ERROR_CHECKS
 
 # 1) No input file specified
