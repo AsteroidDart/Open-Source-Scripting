@@ -1,12 +1,36 @@
 #!/usr/bin/env bash
+
 # Name: Atharva Adhikari
 # ID: 25049366
-# Version Number: 3
+# Version Number: 4
 # Date of completion: 22 May 2026
 # How to run this script: ./clean trending_videos_unclean.csv
-# Summary: The given script performs data cleaning on a CSV file containing YouTube trending video data. It checks for various error conditions such as missing input file, incorrect file format, and empty file. The script processes the CSV file using awk, removing rows with incorrect number of columns, missing values, and zero likes/dislikes. It also formats the publish date and converts TRUE/FALSE values to True/False. Finally, it removes duplicate rows and saves the cleaned data to a new CSV file named "trending_videos_clean.csv".
+#
+# Summary:
+# This script performs data cleaning on a CSV file containing
+# YouTube trending video data.
+#
+# It performs the following:
+# - Error checks for:
+#   * missing input file
+#   * missing file in directory
+#   * incorrect file format
+#   * empty file
+#   * incorrect number of columns
+#
+# - Data cleaning operations:
+#   * removes ratings_disabled column
+#   * removes rows with incorrect columns
+#   * removes rows with missing values
+#   * removes duplicate rows
+#   * removes rows with 0 likes/dislikes
+#   * removes time from publish_date
+#   * converts TRUE/FALSE to True/False
+#
+# Output:
+# trending_videos_clean.csv
 
-# ERROR_CHECKS
+# ERROR CHECKS
 
 # 1) No input file specified
 if [ $# -eq 0 ]; then
@@ -34,27 +58,39 @@ if [ ! -s "$INPUT_FILE" ]; then
     exit 1
 fi
 
+# 5) Input CSV file has incorrect number of columns
+INVALID_COLS=$(awk -F',' 'NF != 7 {print NR}' "$INPUT_FILE")
+
+if [ ! -z "$INVALID_COLS" ]; then
+    echo "ERROR: Expected 7 columns in the input"
+    exit 1
+fi
+
+# DATA CLEANING
 
 OUTPUT_FILE="trending_videos_clean.csv"
 
 awk -F',' '
+
 BEGIN {
     OFS=","
 }
 
-# Process header
-NR == 1 {
 
-    # Ensure header has 7 columns
-    if (NF != 7) {
-        print "ERROR: Expected 7 columns in the input"
-        exit 1
-    }
+# HEADER
+
+
+NR == 1 {
 
     # Remove ratings_disabled column
     print $1, $2, $3, $4, $5, $6
+
     next
 }
+
+
+# PROCESS DATA ROWS
+
 
 {
 
@@ -63,9 +99,11 @@ NR == 1 {
         next
 
     # Delete rows with missing values
-    for ( i = 0; i <=NF; i++ )
+    for (i = 1; i <= NF; i++) {
+
         if ($i == "")
             next
+    }
 
     # Delete rows with zero likes/dislikes
     if ($4 == 0 || $5 == 0)
@@ -73,25 +111,36 @@ NR == 1 {
 
     # Remove time from publish_date
     split($2, dateParts, "T")
+
     cleanDate = dateParts[1]
 
     # Convert TRUE/FALSE to True/False
     if ($6 == "TRUE")
         comments = "True"
+
     else if ($6 == "FALSE")
         comments = "False"
+
     else
         comments = $6
 
-    # Create cleaned row
+    # Create cleaned row without ratings_disabled
     row = $1 OFS cleanDate OFS $3 OFS $4 OFS $5 OFS comments
 
     # Remove duplicate rows
     if (!seen[row]++) {
+
         print row
     }
 }
+
 ' "$INPUT_FILE" > "$OUTPUT_FILE"
 
+
+
+# SUCCESS MESSAGE
+
+
 echo "Data cleaning complete."
+
 echo "Cleaned file created: $OUTPUT_FILE"
