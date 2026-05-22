@@ -21,20 +21,14 @@ NR > 1 {
     likes = $4
     dislikes = $5
 
-    # -------------------------------------
     # Most frequent video
-    # -------------------------------------
     freq[video_id]++
 
-    # -------------------------------------
     # Mean views
-    # -------------------------------------
     totalViews += views
     count++
 
-    # -------------------------------------
     # Maximum dislikes
-    # -------------------------------------
     if (dislikes > maxDislikes) {
 
         maxDislikes = dislikes
@@ -49,10 +43,8 @@ NR > 1 {
         maxDislikeVideos[video_id] = 1
     }
 
-    # -------------------------------------
     # Engagement rate
     # (likes + dislikes) / views
-    # -------------------------------------
     engagement = (likes + dislikes) / views
 
     if (engagement > maxEngagement) {
@@ -69,10 +61,8 @@ NR > 1 {
         engagementVideos[video_id "," publish_date] = 1
     }
 
-    # -------------------------------------
     # Net sentiment rate
     # (likes - dislikes) / views
-    # -------------------------------------
     sentiment = (likes - dislikes) / views
 
     if (sentiment < minSentiment) {
@@ -92,9 +82,8 @@ NR > 1 {
 
 END {
 
-    # =====================================
     # Most frequent video
-    # =====================================
+
 
     for (id in freq) {
 
@@ -112,26 +101,22 @@ END {
         }
     }
 
-    # =====================================
     # Mean views
-    # =====================================
 
     meanViews = totalViews / count
 
     printf "Mean number of views: %.2f\n", meanViews
 
-    # =====================================
     # Maximum dislikes
-    # =====================================
 
     for (id in maxDislikeVideos) {
 
         print "Max dislikes video, ID:", id
     }
 
-    # =====================================
+
     # Highest engagement rate
-    # =====================================
+
 
     for (entry in engagementVideos) {
 
@@ -140,9 +125,7 @@ END {
         print "Highest engagement rate video, ID:", arr[1] ", dated:", arr[2]
     }
 
-    # =====================================
     # Least sentiment rate
-    # =====================================
 
     for (entry in sentimentVideos) {
 
@@ -152,4 +135,3 @@ END {
     }
 }
 ' "$INPUT_FILE"
-
