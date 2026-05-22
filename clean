@@ -4,8 +4,7 @@
 # ID: 25049366
 # Version Number: 4
 # Date of completion: 22 May 2026
-# How to run this script: ./clean trending_videos_unclean.csv
-#
+
 # Summary:
 # This script performs data cleaning on a CSV file containing
 # YouTube trending video data.
