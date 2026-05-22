@@ -88,9 +88,7 @@ NR == 1 {
     next
 }
 
-
 # PROCESS DATA ROWS
-
 
 {
 
@@ -136,11 +134,7 @@ NR == 1 {
 
 ' "$INPUT_FILE" > "$OUTPUT_FILE"
 
-
-
 # SUCCESS MESSAGE
 
-
 echo "Data cleaning complete."
-
 echo "Cleaned file created: $OUTPUT_FILE"
