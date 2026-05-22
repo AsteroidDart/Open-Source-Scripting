@@ -1,0 +1,155 @@
+#!/bin/bash
+
+INPUT_FILE="$1"
+
+awk -F',' '
+
+BEGIN {
+    maxFreq = 0
+    maxDislikes = -1
+    maxEngagement = -1
+    minSentiment = 999999
+    totalViews = 0
+    count = 0
+}
+
+NR > 1 {
+
+    video_id = $1
+    publish_date = $2
+    views = $3
+    likes = $4
+    dislikes = $5
+
+    # -------------------------------------
+    # Most frequent video
+    # -------------------------------------
+    freq[video_id]++
+
+    # -------------------------------------
+    # Mean views
+    # -------------------------------------
+    totalViews += views
+    count++
+
+    # -------------------------------------
+    # Maximum dislikes
+    # -------------------------------------
+    if (dislikes > maxDislikes) {
+
+        maxDislikes = dislikes
+
+        delete maxDislikeVideos
+
+        maxDislikeVideos[video_id] = 1
+    }
+
+    else if (dislikes == maxDislikes) {
+
+        maxDislikeVideos[video_id] = 1
+    }
+
+    # -------------------------------------
+    # Engagement rate
+    # (likes + dislikes) / views
+    # -------------------------------------
+    engagement = (likes + dislikes) / views
+
+    if (engagement > maxEngagement) {
+
+        maxEngagement = engagement
+
+        delete engagementVideos
+
+        engagementVideos[video_id "," publish_date] = 1
+    }
+
+    else if (engagement == maxEngagement) {
+
+        engagementVideos[video_id "," publish_date] = 1
+    }
+
+    # -------------------------------------
+    # Net sentiment rate
+    # (likes - dislikes) / views
+    # -------------------------------------
+    sentiment = (likes - dislikes) / views
+
+    if (sentiment < minSentiment) {
+
+        minSentiment = sentiment
+
+        delete sentimentVideos
+
+        sentimentVideos[video_id "," publish_date] = 1
+    }
+
+    else if (sentiment == minSentiment) {
+
+        sentimentVideos[video_id "," publish_date] = 1
+    }
+}
+
+END {
+
+    # =====================================
+    # Most frequent video
+    # =====================================
+
+    for (id in freq) {
+
+        if (freq[id] > maxFreq) {
+
+            maxFreq = freq[id]
+        }
+    }
+
+    for (id in freq) {
+
+        if (freq[id] == maxFreq) {
+
+            print "Most frequent video, ID:", id
+        }
+    }
+
+    # =====================================
+    # Mean views
+    # =====================================
+
+    meanViews = totalViews / count
+
+    printf "Mean number of views: %.2f\n", meanViews
+
+    # =====================================
+    # Maximum dislikes
+    # =====================================
+
+    for (id in maxDislikeVideos) {
+
+        print "Max dislikes video, ID:", id
+    }
+
+    # =====================================
+    # Highest engagement rate
+    # =====================================
+
+    for (entry in engagementVideos) {
+
+        split(entry, arr, ",")
+
+        print "Highest engagement rate video, ID:", arr[1] ", dated:", arr[2]
+    }
+
+    # =====================================
+    # Least sentiment rate
+    # =====================================
+
+    for (entry in sentimentVideos) {
+
+        split(entry, arr, ",")
+
+        print "Least sentiment rate video, ID:", arr[1] ", dated:", arr[2]
+    }
+}
+' "$INPUT_FILE"
+
